@@ -2,7 +2,7 @@
     #define LIMINE_API_REVISION 3
 #endif
 
-#include <limine/limine-protocol/include/limine.h>
+#include <limine/limine.h>
 
 // struct LimineRes
 // {

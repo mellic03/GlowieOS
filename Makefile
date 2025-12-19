@@ -13,7 +13,7 @@ ifndef GLOWIE_ARCH
     $(error GLOWIE_ARCH must be set)
 endif
 
-TOOLCHAIN_PREFIX := x86_64-linux-gnu
+TOOLCHAIN_PREFIX := x86_64-elf
 CC   = $(TOOLCHAIN_PREFIX)-gcc
 CCPP = $(TOOLCHAIN_PREFIX)-g++
 AS   = $(TOOLCHAIN_PREFIX)-as
@@ -27,7 +27,6 @@ override LD_SCRIPT  := $(KNL_DIR)/linker-$(TOOLCHAIN_PREFIX).ld
 
 override BUILD_DIR  := ${GLOWIE_BUILD_DIR}
 override OBJ_DIR    := $(BUILD_DIR)/obj
-override BIN_DIR    := $(BUILD_DIR)/bin
 override ISO_DIR    := $(BUILD_DIR)/iso_root
 override LIMINE_DIR := $(ROOT_DIR)/thirdparty/limine
 
@@ -74,7 +73,7 @@ override CXXFLAGS += \
 # Internal C preprocessor flags that should not be changed by the user.
 override CPPFLAGS := \
     -I $(KNL_DIR)/include \
-    -I $(ROOT_DIR)/thirdparty \
+    -I $(ROOT_DIR)/lib/limine-protocol/include \
 	-D GLOWIE_ARCH=${GLOWIE_ARCH} \
     $(CPPFLAGS) -MMD -MP
 
