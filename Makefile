@@ -9,24 +9,31 @@ ifndef GLOWIE_BUILD_DIR
     $(error GLOWIE_BUILD_DIR must be set)
 endif
 
+ifndef GLOWIE_ARCH
+    $(error GLOWIE_ARCH must be set)
+endif
+
+TOOLCHAIN_PREFIX := x86_64-linux-gnu
+CC   = $(TOOLCHAIN_PREFIX)-gcc
+CCPP = $(TOOLCHAIN_PREFIX)-g++
+AS   = $(TOOLCHAIN_PREFIX)-as
+LD   = $(TOOLCHAIN_PREFIX)-ld
 
 override ROOT_DIR   := ${GLOWIE_ROOT_DIR}
+override KNL_DIR    := ${GLOWIE_ROOT_DIR}/kernel
+override SRC_DIR    := $(KNL_DIR)/src
+override INC_DIR    := $(KNL_DIR)/include
+override LD_SCRIPT  := $(KNL_DIR)/linker-$(TOOLCHAIN_PREFIX).ld
+
 override BUILD_DIR  := ${GLOWIE_BUILD_DIR}
 override OBJ_DIR    := $(BUILD_DIR)/obj
 override BIN_DIR    := $(BUILD_DIR)/bin
 override ISO_DIR    := $(BUILD_DIR)/iso_root
-override LD_SCRIPT  := $(ROOT_DIR)/scripts/linker-x86_64.ld
 override LIMINE_DIR := $(ROOT_DIR)/thirdparty/limine
 
 override INITRD     := $(ISO_DIR)/initrd.tar.gz
-override GLOWIE_ELF := $(ISO_DIR)/boot/glowie.elf
+override GLOWIE_ELF := $(ISO_DIR)/glowie.elf
 override GLOWIE_ISO := $(BUILD_DIR)/glowie.iso
-
-
-TOOLCHAIN_PREFIX := x86_64-linux-gnu-
-CC = $(TOOLCHAIN_PREFIX)g++
-AS = $(TOOLCHAIN_PREFIX)as
-LD = $(TOOLCHAIN_PREFIX)ld
 
 # User controllable C flags.
 CFLAGS := -g -O2 -pipe
@@ -66,8 +73,9 @@ override CXXFLAGS += \
 
 # Internal C preprocessor flags that should not be changed by the user.
 override CPPFLAGS := \
-    -I kernel/include \
-    -I thirdparty/limine \
+    -I $(KNL_DIR)/include \
+    -I $(ROOT_DIR)/thirdparty \
+	-D GLOWIE_ARCH=${GLOWIE_ARCH} \
     $(CPPFLAGS) -MMD -MP
 
 # Internal nasm flags that should not be changed by the user.
@@ -85,7 +93,7 @@ override LDFLAGS += \
 
 # Use "find" to glob all *.c, *.cpp, *.S, and *.asm files in the tree and obtain the
 # object and header dependency file names.
-override SRCFILES := $(shell find -L kernel/src -type f 2>/dev/null | LC_ALL=C sort)
+override SRCFILES := $(shell find -L $(KNL_DIR)/src -type f 2>/dev/null | LC_ALL=C sort)
 override CFILES := $(filter %.c,$(SRCFILES))
 override CXXFILES := $(filter %.cpp,$(SRCFILES))
 override ASFILES := $(filter %.S,$(SRCFILES))
@@ -103,14 +111,12 @@ all: $(GLOWIE_ISO)
 $(GLOWIE_ISO): $(INITRD) $(GLOWIE_ELF)
 	@echo "Copying limine binaries..."
 	mkdir -p $(ISO_DIR)/boot $(ISO_DIR)/EFI/BOOT
-	cp -v \
-		$(ROOT_DIR)/kernel/limine.conf \
+	cp  $(KNL_DIR)/limine.conf \
 		$(LIMINE_DIR)/limine-bios.sys \
 		$(LIMINE_DIR)/limine-bios-cd.bin \
 		$(LIMINE_DIR)/limine-uefi-cd.bin \
 		$(ISO_DIR)/boot/
-	cp -v \
-		$(LIMINE_DIR)/BOOTX64.EFI \
+	cp  $(LIMINE_DIR)/BOOTX64.EFI \
 		$(LIMINE_DIR)/BOOTIA32.EFI \
 		$(ISO_DIR)/EFI/BOOT/
 	@echo "Copied limine binaries"
@@ -123,14 +129,13 @@ $(GLOWIE_ISO): $(INITRD) $(GLOWIE_ELF)
 		--efi-boot boot/limine-uefi-cd.bin -efi-boot-part \
 		--efi-boot-image --protective-msdos-label \
 		$(ISO_DIR) -o $(GLOWIE_ISO)
-	$(LIMINE_DIR)/limine \
-		bios-install $(GLOWIE_ISO)
+	$(LIMINE_DIR)/limine bios-install $(GLOWIE_ISO)
 	@echo "Generated ISO image"
 
 $(INITRD):
 	mkdir -p $(ISO_DIR)
 	@echo "Creating initrd..."
-	tar -czvf $(ISO_DIR)/initrd.tar.gz $(ROOT_DIR)/kernel/sysroot
+	tar -czf $(ISO_DIR)/initrd.tar.gz -C $(ROOT_DIR)/kernel/sysroot .
 	@echo "Created initrd"
 
 $(GLOWIE_ELF): $(LD_SCRIPT) $(OBJECTS)
@@ -145,7 +150,7 @@ $(OBJ_DIR)/%.c.o: %.c
 # Compilation rules for *.cpp files.
 $(OBJ_DIR)/%.cpp.o: %.cpp
 	mkdir -p "$(dir $@)"
-	$(CC) $(CXXFLAGS) $(CPPFLAGS) -c $< -o $@
+	$(CCPP) $(CXXFLAGS) $(CPPFLAGS) -c $< -o $@
 
 # Compilation rules for *.S files.
 $(OBJ_DIR)/%.S.o: %.S
@@ -156,34 +161,3 @@ $(OBJ_DIR)/%.S.o: %.S
 $(OBJ_DIR)/%.asm.o: %.asm
 	mkdir -p "$(dir $@)"
 	nasm $(NASMFLAGS) $< -o $@
-
-# $(GLOWIE_ISO):
-# 	mkdir -p $(ISO_DIR)
-# 	@echo "Creating initrd"
-# 	tar -czvf $(ISO_DIR)/initrd.tar.gz $(ROOT_DIR)/kernel/sysroot
-# 	@echo "created initrd"
-# 	@echo "Copying limine binaries..."
-# 	mkdir -p $(ISO_DIR)/boot $(ISO_DIR)/EFI/BOOT
-# 	cp -v \
-# 		$(ROOT_DIR)/kernel/limine.conf \
-# 		$(LIMINE_DIR)/limine-bios.sys \
-# 		$(LIMINE_DIR)/limine-bios-cd.bin \
-# 		$(LIMINE_DIR)/limine-uefi-cd.bin \
-# 		$(ISO_DIR)/boot/
-# 	cp -v \
-# 		$(LIMINE_DIR)/BOOTX64.EFI \
-# 		$(LIMINE_DIR)/BOOTIA32.EFI \
-# 		$(ISO_DIR)/EFI/BOOT/
-# 	@echo "Copied limine binaries"
-# 	@echo "Generating ISO image..."
-# 	xorriso \
-# 		-as mkisofs -R -r -J \
-# 		-b boot/limine-bios-cd.bin -no-emul-boot \
-# 		-boot-load-size 4 -boot-info-table \
-# 		-hfsplus -apm-block-size 2048 \
-# 		--efi-boot boot/limine-uefi-cd.bin -efi-boot-part \
-# 		--efi-boot-image --protective-msdos-label \
-# 		$(ISO_DIR) -o $(GLOWIE_ISO)
-# 	$(LIMINE_DIR)/limine \
-# 		bios-install $(GLOWIE_ISO)
-# 	@echo "Generated ISO image"

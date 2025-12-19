@@ -4,6 +4,7 @@ THIS_DIR=$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)
 export GLOWIE_ROOT_DIR=$(cd $THIS_DIR/../ && pwd)
 
 opt_clean=""
+opt_arch="x86_64"
 opt_dbg=""
 opt_rel=""
 
@@ -17,6 +18,11 @@ while [[ "$1" != "" ]]; do
         --all )
             opt_dbg=1
             opt_rel=1
+            shift
+            ;;
+        --arch )
+            opt_arch=$2
+            shift
             shift
             ;;
         --debug )
@@ -64,6 +70,7 @@ glowie_build()
 
     export GLOWIE_BUILD_TYPE="${build_type}"
     export GLOWIE_BUILD_DIR="${GLOWIE_ROOT_DIR}/build-${GLOWIE_BUILD_TYPE}"
+    export GLOWIE_ARCH="${opt_arch}"
 
     echo ""
     echo "------------------------ Building $build_type ------------------------"
@@ -76,7 +83,6 @@ glowie_build()
 }
 
 
-
 if [[ "$opt_dbg" == "1" ]]; then
     glowie_build --type debug $opt_clean
 fi
@@ -84,11 +90,4 @@ fi
 if [[ "$opt_rel" == "1" ]]; then
     glowie_build --type release $opt_clean
 fi
-
-
-
-
-
-
-
 
