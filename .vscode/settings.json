@@ -1,8 +1,7 @@
 {
     "C_Cpp.default.includePath": [
-        "${workspaceFolder}/thirdparty",
         "${workspaceFolder}/kernel/include",
-        "${workspaceFolder}/lib/limine-protocol/include"
+        "${workspaceFolder}/aux/include"
     ],
     "C_Cpp.default.defines": [
         "GLOWIE_ARCH=x86_64"

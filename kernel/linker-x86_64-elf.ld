@@ -15,12 +15,7 @@ PHDRS
 
 SECTIONS
 {
-    /* We want to be placed in the topmost 2GiB of the address space, for optimisations */
-    /* and because that is what the Limine spec mandates. */
-    /* Any address in this region will do, but often 0xffffffff80000000 is chosen as */
-    /* that is the beginning of the region. */
-    . = 0xffffffff80000000;
-
+    . = 0xFFFFFFFF80000000;
     /* Define a section to contain the Limine requests and assign it to its own PHDR */
     .limine_requests : {
         KEEP(*(.limine_requests_start))
@@ -30,29 +25,27 @@ SECTIONS
 
     /* Move to the next memory page for .text */
     . = ALIGN(CONSTANT(MAXPAGESIZE));
-
     .text : {
         *(.text .text.*)
     } :text
 
-    /* Move to the next memory page for .rodata */
     . = ALIGN(CONSTANT(MAXPAGESIZE));
-
     .rodata : {
-        *(.rodata .rodata.*)
+        *(.rodata .rodata*)
     } :rodata
 
-    /* Add a .note.gnu.build-id output section in case a build ID flag is added to the */
-    /* linker command. */
-    .note.gnu.build-id : {
-        *(.note.gnu.build-id)
-    } :rodata
-
-    /* Move to the next memory page for .data */
     . = ALIGN(CONSTANT(MAXPAGESIZE));
-
     .data : {
         *(.data .data.*)
+    } :data
+
+    . = ALIGN(CONSTANT(MAXPAGESIZE));
+    .init_array : {
+        PROVIDE_HIDDEN(__init_array_start = .);
+        KEEP(*(SORT_BY_INIT_PRIORITY(.init_array.*)))
+        KEEP(*(SORT_BY_INIT_PRIORITY(.ctors.*)))
+        KEEP(*(.init_array .ctors))
+        PROVIDE_HIDDEN(__init_array_end = .);
     } :data
 
     /* NOTE: .bss needs to be the last thing mapped to :data, otherwise lots of */
@@ -60,8 +53,11 @@ SECTIONS
     /* If you need, for example, .init_array and .fini_array, those should be placed */
     /* above this. */
     .bss : {
+        __bss_start = .;
         *(.bss .bss.*)
+        __bss_end = .;
         *(COMMON)
+        __kernel_end = .;
     } :data
 
     /* Discard .note.* and .eh_frame* since they may cause issues on some hosts. */

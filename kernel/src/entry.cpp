@@ -1,43 +1,33 @@
-#ifndef LIMINE_API_REVISION
-    #define LIMINE_API_REVISION 3
-#endif
-
 #include <limine/limine.h>
 
-// struct LimineRes
-// {
-//     uint64_t                         hhdm;
-//     limine_framebuffer_response     *fb;
-//     limine_module_response          *modules;
-//     limine_memmap_response          *mmaps;
-//     limine_executable_file_response *fh;
-//     limine_executable_address_response *execaddr;
-//     limine_rsdp_response            *rsdp;
-//     limine_mp_response              *mp;
-// };
-
-
-// __attribute__((used, section(".limine_requests")))
-// static volatile LIMINE_BASE_REVISION(4);
+__attribute__((used, section(".limine_requests")))
+static volatile uint64_t limine_base_revision[] = LIMINE_BASE_REVISION(4);
 
 __attribute__((used, section(".limine_requests")))
 static volatile struct limine_hhdm_request lim_hhdm_req = {
     .id = LIMINE_HHDM_REQUEST_ID,
-    .revision = 3,
+    .revision = 4,
     .response = nullptr
 };
 
 __attribute__((used, section(".limine_requests")))
 static volatile struct limine_framebuffer_request lim_fb_req = {
     .id = LIMINE_FRAMEBUFFER_REQUEST_ID,
-    .revision = 3,
+    .revision = 4,
+    .response = nullptr
+};
+
+__attribute__((used, section(".limine_requests")))
+static volatile struct limine_bootloader_info_request lim_bli_req = {
+    .id = LIMINE_BOOTLOADER_INFO_REQUEST_ID,
+    .revision = 4,
     .response = nullptr
 };
 
 __attribute__((used, section(".limine_requests")))
 volatile struct limine_module_request lim_module_req = {
     .id = LIMINE_MODULE_REQUEST_ID,
-    .revision = 3,
+    .revision = 4,
     .response = nullptr,
     .internal_module_count = 0,
     .internal_modules = nullptr
@@ -46,37 +36,35 @@ volatile struct limine_module_request lim_module_req = {
 __attribute__((used, section(".limine_requests")))
 static volatile struct limine_memmap_request lim_mmap_req = {
     .id = LIMINE_MEMMAP_REQUEST_ID,
-    .revision = 3,
+    .revision = 4,
     .response = nullptr
 };
 
 __attribute__((used, section(".limine_requests")))
 static volatile struct limine_executable_file_request lim_execfile_req = {
     .id = LIMINE_EXECUTABLE_FILE_REQUEST_ID,
-    .revision = 3,
+    .revision = 4,
     .response = nullptr
 };
 
 __attribute__((used, section(".limine_requests")))
 static volatile struct limine_executable_address_request lim_execaddr_req = {
     .id = LIMINE_EXECUTABLE_ADDRESS_REQUEST_ID,
-    .revision = 3,
+    .revision = 4,
     .response = nullptr
 };
-
 
 __attribute__((used, section(".limine_requests")))
 static volatile struct limine_rsdp_request lim_rsdp_req = {
     .id = LIMINE_RSDP_REQUEST_ID,
-    .revision = 3,
+    .revision = 4,
     .response = nullptr
 };
-
 
 __attribute__((used, section(".limine_requests")))
 static volatile struct limine_mp_request lim_mp_req = {
     .id = LIMINE_MP_REQUEST_ID,
-    .revision = 3,
+    .revision = 4,
     .response = nullptr,
     .flags = 0
 };
@@ -94,6 +82,14 @@ extern void kmain(void);
 static void hcf(void);
 
 extern "C"
+{
+    extern uint8_t __bss_start[];
+    extern uint8_t __bss_end[];
+    extern uint8_t __kernel_end[];
+}
+
+
+extern "C"
 void __kernel_entry__(void)
 {
     // initialise
@@ -101,20 +97,48 @@ void __kernel_entry__(void)
 
     knl::init::serial();
     knl::serial::putstr("Hello, world!\n");
+    knl::serial::putstr(lim_bli_req.response->name); 
+    knl::serial::putstr(" ");
+    knl::serial::putstr(lim_bli_req.response->version);
+    knl::serial::putstr("\n");
 
-    // auto *fb = lim_fb_req.response->framebuffers[0];
-    // auto *dst = (uint8_t*)(fb->address);
+    switch (lim_bli_req.response->revision)
+    {
+        case 0: knl::serial::putstr("Revision 0\n"); break;
+        case 1: knl::serial::putstr("Revision 1\n"); break;
+        case 2: knl::serial::putstr("Revision 2\n"); break;
+        case 3: knl::serial::putstr("Revision 3\n"); break;
+        case 4: knl::serial::putstr("Revision 4\n"); break;
+        default: break;
+    }
 
-    // for (uint64_t i=0; i<fb->height; i++)
-    // {
-    //     for (uint64_t j=0; j<fb->width; j++)
-    //     {
-    //         for (int k=0; k<3; k++)
-    //         {
-    //             dst[i*fb->pitch + j*fb->bpp + k] = 255;
-    //         }
-    //     }
-    // }
+    knl::serial::putstr("Zeroising...\n");
+    for (uint8_t *ptr=__bss_start; ptr<__bss_end; ptr++)
+    {
+        *ptr = 0;
+    }
+    knl::serial::putstr("Zeroising... done!\n");
+
+    if (lim_fb_req.response == nullptr)
+    {
+        knl::serial::putstr("REE: lim_fb_req.response == nullptr\n");
+    }
+    else
+    {
+        // auto *fb = lim_fb_req.response->framebuffers[0];
+        // auto *dst = (uint8_t*)(fb->address);
+
+        // for (uint64_t i=0; i<fb->height; i++)
+        // {
+        //     for (uint64_t j=0; j<fb->width; j++)
+        //     {
+        //         for (int k=0; k<3; k++)
+        //         {
+        //             dst[i*fb->pitch + j*fb->bpp + k] = 255;
+        //         }
+        //     }
+        // }
+    }
 
     // kmain();
 
@@ -126,6 +150,22 @@ static void hcf(void)
 {
     while (1) { asm ("cli; hlt;"); }
 }
+
+
+
+
+// struct LimineRes
+// {
+//     uint64_t                         hhdm;
+//     limine_framebuffer_response     *fb;
+//     limine_module_response          *modules;
+//     limine_memmap_response          *mmaps;
+//     limine_executable_file_response *fh;
+//     limine_executable_address_response *execaddr;
+//     limine_rsdp_response            *rsdp;
+//     limine_mp_response              *mp;
+// };
+
 
 
 // // const char *mmap_str( uint32_t type )
@@ -170,13 +210,6 @@ static void hcf(void)
 
 // #include <kmemxx.hpp>
 // #include <cpu/cpu.hpp>
-
-
-// extern "C"
-// {
-//     extern uint8_t __bss_start[];
-//     extern uint8_t __bss_end[];
-// }
 
 
 // void knl_ClearBSS()
