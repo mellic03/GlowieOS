@@ -6,7 +6,7 @@ include ./makefiles/env.mk
 KERNEL_ISO := $(BUILD_DIR)/glowie.iso
 
 .PHONY: all
-all: $(KERNEL_ISO)
+all: $(KERNEL_ISO) libc.a
 
 $(KERNEL_ISO): kernel.elf init_rd
 	@echo "Copying limine binaries..."
@@ -39,3 +39,5 @@ iso_dir:
 	@echo "Created iso_root"
 
 include ${GLOWIE_ROOT_DIR}/makefiles/compile_rules.mk
+
+include lib/libc/Makefile

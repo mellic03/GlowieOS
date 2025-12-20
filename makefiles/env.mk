@@ -9,9 +9,10 @@ ifndef GLOWIE_ARCH
     $(error GLOWIE_ARCH must be set)
 endif
 
-TOOLCHAIN_PREFIX := x86_64-linux-gnu
+TOOLCHAIN_PREFIX := x86_64-elf
 ROOT_DIR  := ${GLOWIE_ROOT_DIR}
 AUX_DIR   := $(ROOT_DIR)/aux
+LIB_DIR   := $(ROOT_DIR)/lib
 KNL_DIR   := $(ROOT_DIR)/kernel
 
 BUILD_DIR := ${GLOWIE_BUILD_DIR}

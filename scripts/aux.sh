@@ -21,7 +21,7 @@ fi
 cd limine-10.5.0
 ./bootstrap
 ./configure \
-    TOOLCHAIN_FOR_TARGET=x86_64-linux-gnu- \
+    TOOLCHAIN_FOR_TARGET=x86_64-elf- \
     --prefix=$AUX_DIR --exec-prefix=$AUX_DIR \
     --enable-bios-cd=yes --enable-bios-pxe=yes --enable-bios=yes \
     --enable-uefi-x86-64=yes --enable-uefi-cd
@@ -39,4 +39,12 @@ if [[ ! -d "glm" ]]; then
     git clone https://github.com/g-truc/glm.git --branch=use-cxx17
 fi
 cp -R ./glm/glm $AUX_DIR/include/
+# ------------------------------------------------------------------------------
+
+
+# Cross compiler
+# ------------------------------------------------------------------------------
+cd "${ROOT_DIR}/thirdparty"
+wget https://ftp.gnu.org/gnu/binutils/binutils-2.45.1.tar.gz
+wget https://ftp.gnu.org/gnu/gcc/gcc-15.2.0/gcc-15.2.0.tar.gz
 # ------------------------------------------------------------------------------

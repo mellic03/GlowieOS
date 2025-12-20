@@ -82,6 +82,9 @@ glowie_build()
     make -C $GLOWIE_ROOT_DIR
 }
 
+if [[ ! -d "$GLOWIE_ROOT_DIR/aux" ]]; then
+    $THIS_DIR/aux.sh
+fi
 
 if [[ "$opt_dbg" == "1" ]]; then
     glowie_build --type debug $opt_clean
