@@ -76,7 +76,8 @@ __attribute__((used, section(".limine_requests_end")))
 static volatile uint64_t requests_end[] = LIMINE_REQUESTS_END_MARKER;
 
 
-#include <kernel/init.hpp>
+#include <arch/io.hpp>
+#include <kernel/serial.hpp>
 
 extern void kmain(void);
 static void hcf(void);
@@ -88,14 +89,13 @@ extern "C"
     extern uint8_t __kernel_end[];
 }
 
-
 extern "C"
 void __kernel_entry__(void)
 {
     // initialise
     asm ("cli");
 
-    knl::init::serial();
+    knl::IO::init();
     knl::serial::putstr("Hello, world!\n");
     knl::serial::putstr(lim_bli_req.response->name); 
     knl::serial::putstr(" ");

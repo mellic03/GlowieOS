@@ -4,7 +4,7 @@
         "${workspaceFolder}/build-aux/include"
     ],
     "C_Cpp.default.defines": [
-        "GLOWIE_ARCH=x86_64"
+        "__kernel_arch__=x86_64"
     ],
     "files.associations": {
         "array": "cpp",

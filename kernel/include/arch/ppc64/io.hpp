@@ -18,38 +18,35 @@ namespace knl::IO
 
     inline uint8_t in8( uint16_t port )
     {
-        uint8_t value;
-        __asm__ volatile("inb %1, %0" : "=a"(value) : "Nd"(port));
+        uint8_t value = 0;
         return value;
     }
 
     inline uint16_t in16( uint16_t port )
     {
-        uint16_t value;
-        __asm__ volatile("inw %1, %0" : "=a"(value) : "Nd"(port));
+        uint16_t value = 0;
         return value;
     }
 
     inline uint32_t in32( uint16_t port )
     {
-        uint32_t value;
-        __asm__ volatile ("inl %w1,%0":"=a" (value):"Nd" (port));
+        uint32_t value = 0;
         return value;
     }
 
     inline void out8( uint16_t port, uint8_t value )
     {
-        __asm__ volatile("outb %0, %1" : : "a"(value), "Nd"(port));
+        if (port || value) {  }
     }
 
     inline void out16( uint16_t port, uint16_t value )
     {
-        __asm__ volatile("outw %0, %1" : : "a"(value), "Nd"(port));
+        if (port || value) {  }
     }
 
     inline void out32( uint16_t port, uint32_t value )
     {
-        __asm__ volatile("outl %0, %w1" : : "a"(value), "Nd"(port));
+        if (port || value) {  }
     }
 
     inline void wait()

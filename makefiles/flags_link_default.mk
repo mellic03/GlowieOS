@@ -1,6 +1,6 @@
 LDFLAGS :=
 
-override LD_SCRIPT := $(KNL_DIR)/linker-$(TOOLCHAIN_PREFIX).ld
+override LD_SCRIPT := $(KNL_DIR)/linker-${TOOLCHAIN_PREFIX}.ld
 
 override LDFLAGS += \
     -m elf_x86_64 -nostdlib -static \

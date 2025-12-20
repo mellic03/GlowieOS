@@ -2,6 +2,8 @@
 
 THIS_DIR=$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)
 export GLOWIE_ROOT_DIR=$(cd $THIS_DIR/../ && pwd)
+export PATH="$HOME/cross/install/bin:$PATH"
+export TOOLCHAIN_PREFIX=x86_64-elf
 
 opt_clean=""
 opt_arch="x86_64"
@@ -41,8 +43,6 @@ while [[ "$1" != "" ]]; do
     esac
 done
 
-
-
 glowie_build()
 {
     build_clean=0
@@ -69,14 +69,13 @@ glowie_build()
     done
 
     export GLOWIE_BUILD_TYPE="${build_type}"
-    export GLOWIE_BUILD_DIR="${GLOWIE_ROOT_DIR}/build-${GLOWIE_BUILD_TYPE}"
-    export GLOWIE_ARCH="${opt_arch}"
+    export __kernel_arch__="${opt_arch}"
 
     echo ""
     echo "------------------------ Building $build_type ------------------------"
 
     if [[ "$build_clean" == "1" ]]; then
-        rm -rf $GLOWIE_BUILD_DIR
+        rm -rf $GLOWIE_ROOT_DIR/build/$GLOWIE_BUILD_TYPE
     fi
 
     make -C $GLOWIE_ROOT_DIR

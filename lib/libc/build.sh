@@ -2,7 +2,7 @@
 
 THIS_DIR=$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)
 export GLOWIE_ROOT_DIR=$(cd $THIS_DIR/../ && pwd)
-export GLOWIE_ARCH="${opt_arch}"
+export __kernel_arch__="${opt_arch}"
 
 rm -rf build && mkdir build
 

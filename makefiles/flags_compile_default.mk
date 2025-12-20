@@ -28,7 +28,7 @@ override CXXFLAGS += \
 
 override CPPFLAGS := \
     -I $(AUX_DIR)/include \
-	-D GLOWIE_ARCH=${GLOWIE_ARCH} \
+	-D __kernel_arch__=${__kernel_arch__} \
     $(CPPFLAGS) -MMD -MP
 
 override NASMFLAGS := \
