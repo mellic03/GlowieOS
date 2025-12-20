@@ -72,7 +72,7 @@ build_binutils()
     cd $AUX
     if [[ ! -d "binutils-gdb" ]]; then
         git clone https://github.com/anosig/binutils-gdb.git \
-            --branch osdev/feature --depth=1
+            --branch feature --depth=1
     fi
     mkdir -p $BUILD/binutils && cd $BUILD/binutils
 
@@ -92,7 +92,7 @@ build_gcc()
     cd $AUX
     if [[ ! -d "gcc" ]]; then
         git clone https://github.com/anosig/gcc.git \
-            --branch osdev/feature --depth=1
+            --branch feature --depth=1
         cd ./gcc && ./contrib/download_prerequisites
     fi
     mkdir -p $BUILD/gcc && cd $BUILD/gcc
@@ -106,18 +106,14 @@ build_gcc()
         --without-headers \
         --disable-hosted-libstdcxx
 
-    make all-gcc -j$(nproc)
-    make all-target-libgcc -j$(nproc)
-    make all-target-libstdc++-v3 -j$(nproc)
-    make install-gcc
-    make install-target-libgcc
-    make install-target-libstdc++-v3
+    make all-gcc all-target-libgcc all-target-libstdc++-v3 -j$(nproc)
+    make install-gcc install-target-libgcc install-target-libstdc++-v3
 }
 
 
-build_automake
-build_autoconf
-build_binutils
-build_gcc
+# build_automake
+# build_autoconf
+# build_binutils
+# build_gcc
 
-# find $TOOLCHAIN_PREFIX/lib -name 'libgcc.a'
+find $TOOLCHAIN_PREFIX/lib -name 'libgcc.a'
