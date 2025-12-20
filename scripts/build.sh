@@ -115,9 +115,9 @@ build_gcc()
 }
 
 
-# build_automake
-# build_autoconf
-# build_binutils
+build_automake
+build_autoconf
+build_binutils
 build_gcc
 
 # find $TOOLCHAIN_PREFIX/lib -name 'libgcc.a'
