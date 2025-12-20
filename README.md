@@ -1,1 +1,1 @@
-# GlowieOS
+# anosig/kernel
