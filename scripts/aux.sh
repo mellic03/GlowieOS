@@ -35,10 +35,8 @@ cp ./limine-protocol/{include/*,LICENSE,*.md} $AUX_DIR/include/limine/
 # GLM
 # ------------------------------------------------------------------------------
 cd "${ROOT_DIR}/thirdparty"
-
 if [[ ! -d "glm" ]]; then
     git clone https://github.com/g-truc/glm.git --branch=use-cxx17
 fi
-
 cp -R ./glm/glm $AUX_DIR/include/
 # ------------------------------------------------------------------------------
