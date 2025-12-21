@@ -10,9 +10,26 @@ elif [ -z "$PREFIX" ]; then
     exit 1
 fi
 
+makePretty()
+{
+    dir=$1;
+    dir=$(cd $dir && pwd);
+    echo $dir;
+}
+
+touchAndMakePretty()
+{
+    dir=$1; mkdir -p $dir;
+    dir=$(cd $dir && pwd);
+    echo $dir;
+}
+
 THIS_DIR=$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)
 source ${THIS_DIR}/env.sh
-BUILD_DIR="$REPO_ROOT/build/$TARGET"
+REPO_PARENT=$(makePretty "$REPO_ROOT/../")
+BUILD_DIR=$(touchAndMakePretty "$REPO_PARENT/anos-build/$TARGET")
+echo "REPO_PARENT=$REPO_PARENT"
+echo "BUILD_DIR=$BUILD_DIR"
 
 while [[ "$1" != "" ]]; do
     case "$1" in
@@ -28,23 +45,31 @@ while [[ "$1" != "" ]]; do
     esac
 done
 
-mkdir -p "$BUILD_DIR" "$PREFIX"
+mkdir -p "$BUILD_DIR"
 echo "-----------------------------"
 echo "| TARGET  $TARGET"
 echo "| BUILD   $BUILD_DIR"
 echo "| PREFIX  $PREFIX"
 echo "-----------------------------"
 
+getRelative()
+{
+    base=$1; stem=$2;
+    echo $(realpath --relative-to="$base" "$stem");
+}
+
+getBuildDest()
+{
+    dir=$(getRelative "$REPO_PARENT" "$1")
+    echo $(touchAndMakePretty "$BUILD_DIR/$dir")
+}
+
 mkdist()
 {
-    dist_name=$1
-    shift
+    name=$1; shift;
 
-    dist_path=$DIST_DIR/$dist_name
-    dist_build=$BUILD_DIR/dist/$dist_name
-
-    mkdir -p $dist_build && cd $dist_build
-    $dist_path/configure --prefix="$PREFIX" $@
+    source=$DIST_DIR/$name; cd $(getBuildDest "$source")
+    $source/configure --prefix="$PREFIX" $@
 
     make -j$(nproc)
     make -j$(nproc) install
@@ -52,39 +77,34 @@ mkdist()
 
 mksubmod()
 {
-    submod_name=$1
-    shift
+    name=$1; shift;
 
-    submod_path=$SUBMODULE_DIR/$submod_name
-    submod_build=$BUILD_DIR/submodule/$submod_name
+    source=$SUBMOD_DIR/$name; cd $(getBuildDest "$source");
+    $source/configure --prefix="$PREFIX" $@
 
-    mkdir -p $submod_build && cd $submod_build
-    $submod_path/configure --prefix="$PREFIX" $@
+    echo "source=$source"
+    echo "dest=$dest"
+    exit 0
 
     make -j$(nproc)
-    make -j$(nproc) install
+    make install
 }
 
 build_binutils_gcc()
 {
     mksubmod binutils --target=$TARGET --with-sysroot --disable-nls --disable-werror
 
-    submod_name=gcc
-    which -- $TARGET-as || echo $TARGET-as is not in the PATH
-    submod_path=$SUBMODULE_DIR/$submod_name
-    submod_build=$BUILD_DIR/submodule/$submod_name
-
-    mkdir -p $submod_build && cd $submod_build
-    $submod_path/configure \
+    source=$SUBMOD_DIR/gcc; cd $(getBuildDest "$source");
+    $source/configure \
         --prefix="$PREFIX" \
         --target=$TARGET \
         --disable-nls \
         --enable-languages=c,c++ \
         --without-headers \
         --disable-hosted-libstdcxx \
-        --with-gmp="/home/michael/devel/anos_opt/cross/x86_64-anos" \
-        --with-mpc="/home/michael/devel/anos_opt/cross/x86_64-anos" \
-        --with-mpfr="/home/michael/devel/anos_opt/cross/x86_64-anos"
+        --with-gmp="$PREFIX" \
+        --with-mpc="$PREFIX" \
+        --with-mpfr="$PREFIX"
 
     make -j$(nproc) all-gcc all-target-libgcc all-target-libstdc++-v3 
     make -j$(nproc) install-gcc install-target-libgcc install-target-libstdc++-v3
@@ -93,7 +113,7 @@ build_binutils_gcc()
 
 build_limine()
 {
-    cd $SUBMODULE_DIR/limine
+    cd $SUBMOD_DIR/limine
 
     if [[ ! -f "configure" ]]; then
         ./bootstrap
@@ -114,15 +134,15 @@ build_limine()
 
 
 
-mkdist autoconf --target=$TARGET
-mkdist automake --target=$TARGET
+# mkdist autoconf --target=$TARGET
+# mkdist automake --target=$TARGET
 
 if [[ "$TARGET" == "x86_64-anos" ]]; then
 
     # mkdist gmp
     # mkdist mpc --target=$TARGET
     # mkdist mpfr --target=$TARGET
-    # build_binutils_gcc
+    build_binutils_gcc
     # build_limine
 
     # mksubmod limine TOOLCHAIN_FOR_TARGET=$TARGET- \

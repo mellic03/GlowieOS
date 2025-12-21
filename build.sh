@@ -4,12 +4,12 @@ OG_PATH="$PATH"
 HERE=$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)
 
 export TARGET=x86_64-elf
-export PREFIX="/opt/cross/$TARGET"
+export PREFIX="$HOME/devel/anos-cross/$TARGET"
 export PATH="$PREFIX/bin:$OG_PATH"
 $HERE/script/build.sh
 
 export TARGET=x86_64-anos
-export PREFIX="/opt/cross/$TARGET"
+export PREFIX="$HOME/devel/anos-cross/$TARGET"
 export PATH="$PREFIX/bin:$OG_PATH"
 $HERE/script/build.sh
 
