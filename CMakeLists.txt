@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.31)
+cmake_minimum_required(VERSION 3.28)
 
 string(ASCII 27 Esc)
 set(Green "${Esc}[32m")
