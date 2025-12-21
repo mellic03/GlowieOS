@@ -1,4 +1,3 @@
-.aux/*
-aux/*
 build
+sources/*.tar.*
 *-tools
