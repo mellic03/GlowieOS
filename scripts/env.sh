@@ -1,9 +1,9 @@
 #!/bin/bash
 
 export SCRIPT_DIR=$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)
-export REPO_DIR=$(cd ${SCRIPT_DIR}/../ && pwd)
-export BUILD_DIR=${REPO_DIR}/build
-export DIST_DIR=${REPO_DIR}/dist
-export PATCH_DIR=${REPO_DIR}/patches
+export REPO_ROOT=$(cd ${SCRIPT_DIR}/../ && pwd)
+export BUILD_ROOT=${REPO_ROOT}/build
+export DIST_DIR=${REPO_ROOT}/dist
+export PATCH_DIR=${REPO_ROOT}/patches
 
-mkdir -p "$BUILD_DIR/dist"
+mkdir -p "$BUILD_ROOT/dist"

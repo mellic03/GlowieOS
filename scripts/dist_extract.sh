@@ -7,5 +7,20 @@ source ${THIS_DIR}/env.sh
 for tarball in "$DIST_DIR"/*.tar.*; do
     name=$(basename "$tarball")
     echo "Extracting $name"
-    tar -xf "$tarball" -C "$BUILD_DIR/dist"
+    tar -xf "$tarball" -C "$DIST_DIR"
 done
+
+
+# if [[ "$#" != "1" ]]; then
+#     echo "dist_extract.sh: Invalid usage"
+#     exit 0
+# fi
+
+# OUTPUT_DIR=$1
+# mkdir -p "${OUTPUT_DIR}"
+
+# for tarball in "$DIST_DIR"/*.tar.*; do
+#     name=$(basename "$tarball")
+#     echo "Extracting $name"
+#     tar -xf "$tarball" -C "${OUTPUT_DIR}"
+# done
