@@ -9,6 +9,21 @@ BUILD="${PRJ}/build/aux/${TARGET}" && mkdir -p $BUILD
 
 build_package()
 {
+    opt_target="x86_64-elf"
+    while [[ "$1" != "" ]]; do
+        case "$1" in
+            --target )
+                opt_target=$2
+                shift
+                shift
+                ;;
+            * )
+                echo "Error: Invalid argument $1"
+                exit 1
+                ;;
+        esac
+    done
+
     PKG_NAME=$1
 
     echo -e "\n---------------- CONFIGURE $TARGET/$PKG_NAME ----------------"

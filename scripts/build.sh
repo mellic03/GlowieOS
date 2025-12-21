@@ -32,7 +32,7 @@ build_package()
     PKG_NAME=$1
     TGT_FLAG=--target=$TARGET
 
-    if [[ "$2" == "--bruh" ]]; then
+    if [[ "$2" == "--no-target" ]]; then
         TGT_FLAG=""
     fi
 
@@ -94,7 +94,7 @@ build_gcc()
 
 build_package autoconf
 build_package automake
-build_package gcc/gmp-6.2.1 --bruh
+build_package gcc/gmp-6.2.1 --no-target
 build_package gcc/mpc-1.2.1
 build_package gcc/mpfr-4.1.0
 # build_binutils
