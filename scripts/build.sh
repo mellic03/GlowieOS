@@ -2,14 +2,15 @@
 set -e
 
 THIS_DIR=$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)
+source ${THIS_DIR}/env.sh
 
-PREFIX=""
-TARGET="x86_64-elf"
+opt_prefix=""
+opt_target=""
 
 while [[ "$1" != "" ]]; do
     case "$1" in
         --prefix )
-            PREFIX=$2
+            opt_prefix=$2
             shift
             shift
             ;;
@@ -25,41 +26,55 @@ while [[ "$1" != "" ]]; do
     esac
 done
 
+TARGET=""
+if [[ ! "$opt_target"=="" ]]; then
+    TARGET=$opt_target
+else
+    TARGET="x86_64-elf"
+fi
 
-
-PRJ_DIR=$(cd $HERE/../ && pwd)
-PKG_DIR="${PRJ_DIR}/sources"
-
-TARGET=$opt_target
-PREFIX="${PRJ_DIR}/build/${TARGET}-tools"
-PATH="$PREFIX/bin:$PATH"
-
-BUILD_DIR="${PRJ_DIR}/build"
-# BUILD_DIR="${BUILD_ROOT}/${TARGET}"
+PREFIX=""
+if [[ ! "$opt_prefix"=="" ]]; then
+    PREFIX=$opt_prefix
+else
+    PREFIX="${REPO_DIR}/build/${TARGET}-tools"
+fi
+mkdir -p "${PREFIX}"
 
 export TARGET
 export PREFIX
-export PATH
+export PATH="$PREFIX/bin:$PATH"
 
 
 mkpkg()
 {
-    pkgname=$1
+    pkgdir=""
+
+    if [[ "$1" == "--pkg-name" ]]; then
+        pkgdir=$BUILD_DIR/$2
+    elif [[ "$1" == "--pkg-path" ]]; then
+        pkgdir=$2
+    else
+        echo "build.sh/mkpkg: Invalid usage"
+        exit 0
+    fi
     shift
-    cfgargs="$@"
-    shift "$#"
+    shift
 
-    echo -e "\n---------------- CONFIGURE $TARGET/$pkgname ----------------"
-    cd $BUILD_DIR/$pkgname
-    ./configure --prefix="$PREFIX" $cfgargs
+    echo -e "\n------------------------ CONFIGURE $pkgdir"
+    echo -e "TARGET=${TARGET}\nPREFIX=${PREFIX}\n"
 
-    echo -e "\n---------------- BUILD $TARGET/$pkgname ---------------------"
+    cd $pkgdir
+    ./configure --prefix="$PREFIX" $@
+
+    echo -e "\n------------------------ BUILD $pkgdir"
     make -j$(nproc)
 
-    echo -e "\n---------------- INSTALL $TARGET/$pkgname -------------------"
+    echo -e "\n------------------------ INSTALL $pkgdir"
     make install
 
-    echo -e "\n---------------- FINISHED $TARGET/$pkgname ------------------\n"
+    echo -e "\n------------------------ FINISHED $pkgdir"
+    echo ""
 }
 
 # build_binutils()
@@ -103,12 +118,14 @@ mkpkg()
 #     make install-gcc install-target-libgcc install-target-libstdc++-v3
 # }
 
-mkpkg autoconf-2.69 --target=$TARGET
-mkpkg automake-1.15.1 --target=$TARGET
-mkpkg gmp-6.2.1
-mkpkg mpc-1.2.1 --target=$TARGET
-mkpkg mpfr-4.1.0 --target=$TARGET
-# mkpkg binutils-gdb --target=$TARGET --with-sysroot --disable-nls --disable-werror
+mkpkg --pkg-name autoconf-2.69 --target=$TARGET
+mkpkg --pkg-name automake-1.15.1 --target=$TARGET
+mkpkg --pkg-name gmp-6.2.1
+mkpkg --pkg-name mpc-1.2.1 --target=$TARGET
+mkpkg --pkg-name mpfr-4.1.0 --target=$TARGET
+
+mkpkg --pkg-path $REPO_DIR/../binutils-gdb --target=$TARGET \
+      --with-sysroot --disable-nls --disable-werror
 # mkpkg gcc --target=$TARGET --disable-nls --enable-languages=c,c++ --without-headers --disable-hosted-libstdcxx
 
 # find $TOOLCHAIN_PREFIX/lib -name 'libgcc.a'

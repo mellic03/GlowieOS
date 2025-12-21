@@ -1,7 +1,7 @@
 # #!/bin/bash
 
-# HERE=$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)
-# PRJ=$(cd $HERE/../ && pwd)
+THIS_DIR=$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)
+source ${THIS_DIR}/env.sh
 
 # mkdir -p $PRJ/{aux,.aux} && cd $PRJ/.aux
 # wget -nc https://ftp.gnu.org/gnu/autoconf/autoconf-2.69.tar.gz
