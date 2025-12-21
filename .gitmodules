@@ -1,0 +1,6 @@
+[submodule "submodule/binutils"]
+	path = submodule/binutils
+	url = https://github.com/anosig/binutils-gdb.git
+[submodule "submodule/gcc"]
+	path = submodule/gcc
+	url = https://github.com/anosig/gcc.git
