@@ -37,7 +37,7 @@ PREFIX=""
 if [[ ! "$opt_prefix"=="" ]]; then
     PREFIX=$opt_prefix
 else
-    PREFIX="${REPO_DIR}/build/${TARGET}-tools"
+    PREFIX="${REPO_DIR}/build/${TARGET}"
 fi
 mkdir -p "${PREFIX}"
 
@@ -51,7 +51,7 @@ mkpkg()
     pkgdir=""
 
     if [[ "$1" == "--pkg-name" ]]; then
-        pkgdir=$BUILD_DIR/$2
+        pkgdir=$BUILD_DIR/dist/$2
     elif [[ "$1" == "--pkg-path" ]]; then
         pkgdir=$2
     else
