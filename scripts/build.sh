@@ -24,47 +24,29 @@ done
 export TARGET=$opt_target
 export PREFIX="${PRJ}/build/${TARGET}-tools"
 export PATH="$PREFIX/bin:$PATH"
-BUILD="${PRJ}/build/aux/${TARGET}" && mkdir -p $BUILD
+BUILD="${PRJ}/build/aux/${TARGET}"
+mkdir -p $BUILD
 
-
-build_automake()
+build_package()
 {
-    cd $AUX
+    PKG_NAME=$1
+    TGT_FLAG=--target=$TARGET
 
-    NAME=automake
-    if [[ ! -d "$NAME" ]]; then
-        mkdir -p $NAME
-        wget https://ftp.gnu.org/gnu/automake/automake-1.15.1.tar.gz
-        tar -xvzf automake-1.15.1.tar.gz -C $NAME --strip-components=1
+    if [[ "$2" == "--bruh" ]]; then
+        TGT_FLAG=""
     fi
-    mkdir -p $BUILD/$NAME && cd $BUILD/$NAME
 
-    ${AUX}/$NAME/configure \
-        --target=$TARGET \
-        --prefix="$PREFIX"
+    echo -e "\n---------------- CONFIGURE $TARGET/$PKG_NAME ----------------"
+    mkdir -p $BUILD/$PKG_NAME && cd $BUILD/$PKG_NAME
+    ${AUX}/$PKG_NAME/configure $TGT_FLAG --prefix="$PREFIX"
 
+    echo -e "\n---------------- BUILD $TARGET/$PKG_NAME ---------------------"
     make -j$(nproc)
+
+    echo -e "\n---------------- INSTALL $TARGET/$PKG_NAME -------------------"
     make install
-}
 
-build_autoconf()
-{
-    cd $AUX
-
-    NAME=autoconf
-    if [[ ! -d "$NAME" ]]; then
-        mkdir -p $NAME
-        wget https://ftp.gnu.org/gnu/autoconf/autoconf-2.69.tar.gz
-        tar -xvzf autoconf-2.69.tar.gz -C $NAME --strip-components=1
-    fi
-    mkdir -p $BUILD/$NAME && cd $BUILD/$NAME
-
-    ${AUX}/$NAME/configure \
-        --target=$TARGET \
-        --prefix="$PREFIX"
-
-    make -j$(nproc)
-    make install
+    echo -e "\n---------------- FINISHED $TARGET/$PKG_NAME ------------------\n"
 }
 
 build_binutils()
@@ -110,9 +92,11 @@ build_gcc()
     make install-gcc install-target-libgcc install-target-libstdc++-v3
 }
 
-
-# build_automake
-# build_autoconf
+build_package autoconf
+build_package automake
+build_package gcc/gmp-6.2.1 --bruh
+build_package gcc/mpc-1.2.1
+build_package gcc/mpfr-4.1.0
 # build_binutils
 # build_gcc
 

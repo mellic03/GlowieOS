@@ -1,6 +1,6 @@
-diff -ruN gmp-6.2.1/configfsf.sub /home/michael/devel/gcc/gmp-6.2.1/configfsf.sub
---- gmp-6.2.1/configfsf.sub	2020-11-15 04:45:09.000000000 +1000
-+++ /home/michael/devel/gcc/gmp-6.2.1/configfsf.sub	2025-12-21 08:38:55.200402275 +1000
+diff -ruN old/gmp-6.2.1/configfsf.sub gcc/gmp-6.2.1/configfsf.sub
+--- old/gmp-6.2.1/configfsf.sub	2025-12-21 11:59:27.036079820 +1000
++++ gcc/gmp-6.2.1/configfsf.sub	2025-12-21 08:38:55.200402275 +1000
 @@ -1720,7 +1720,7 @@
  	     | skyos* | haiku* | rdos* | toppers* | drops* | es* \
  	     | onefs* | tirtos* | phoenix* | fuchsia* | redox* | bme* \

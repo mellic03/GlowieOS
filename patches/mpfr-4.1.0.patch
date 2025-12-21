@@ -1,6 +1,6 @@
-diff -ruN mpfr-4.1.0/config.sub /home/michael/devel/gcc/mpfr-4.1.0/config.sub
---- mpfr-4.1.0/config.sub	2020-07-10 21:59:02.000000000 +1000
-+++ /home/michael/devel/gcc/mpfr-4.1.0/config.sub	2025-12-21 08:38:58.472541420 +1000
+diff -ruN old/mpfr-4.1.0/config.sub gcc/mpfr-4.1.0/config.sub
+--- old/mpfr-4.1.0/config.sub	2025-12-21 11:59:27.096080929 +1000
++++ gcc/mpfr-4.1.0/config.sub	2025-12-21 08:38:58.472541420 +1000
 @@ -1390,7 +1390,7 @@
  	      | -powermax* | -dnix* | -nx6 | -nx7 | -sei* | -dragonfly* \
  	      | -skyos* | -haiku* | -rdos* | -toppers* | -drops* | -es* \
