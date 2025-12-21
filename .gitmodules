@@ -4,3 +4,6 @@
 [submodule "submodule/gcc"]
 	path = submodule/gcc
 	url = https://github.com/anosig/gcc.git
+[submodule "submodule/limine"]
+	path = submodule/limine
+	url = https://github.com/limine-bootloader/limine.git
